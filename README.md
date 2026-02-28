@@ -34,7 +34,7 @@ Built with **Node.js**, **Express**, **PeerJS (WebRTC)**, and **Tailwind CSS**.
 ### 1. Clone & install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/HomeCast.git
+git clone https://github.com/apon12934/HomeCast.git
 cd HomeCast
 npm install
 ```
