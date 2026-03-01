@@ -482,6 +482,28 @@
   btnConnect.addEventListener('click', connectToCamera);
   btnDisconnect.addEventListener('click', disconnectViewer);
 
+  /* ------------------------------------------------------------------ */
+  /*  How to Use modal                                                   */
+  /* ------------------------------------------------------------------ */
+  const modalHowTo    = $('#modal-how-to-use');
+  const btnHowToUse   = $('#btn-how-to-use');
+  const btnCloseModal = $('#btn-close-modal');
+  const modalBackdrop = $('#modal-backdrop');
+
+  function openHowToModal()  { modalHowTo.classList.remove('hidden'); }
+  function closeHowToModal() { modalHowTo.classList.add('hidden'); }
+
+  btnHowToUse.addEventListener('click', openHowToModal);
+  btnCloseModal.addEventListener('click', closeHowToModal);
+  modalBackdrop.addEventListener('click', closeHowToModal);
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modalHowTo.classList.contains('hidden')) {
+      closeHowToModal();
+    }
+  });
+
   // Fullscreen buttons
   btnCamFullscreen.addEventListener('click', () => toggleFullscreen(camPreviewWrap));
   btnViewerFullscreen.addEventListener('click', () => toggleFullscreen(viewerVideoFrame));

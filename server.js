@@ -45,16 +45,24 @@ app.get('/api/config', (_req, res) => {
 /* ------------------------------------------------------------------ */
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', uptime: process.uptime() }));
 
-if (MODE === 'remote') {
-  const PING_INTERVAL = 14 * 60 * 1000; // 14 minutes
+// Render sets RENDER_EXTERNAL_URL automatically. Or set APP_URL manually.
+const EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL || process.env.APP_URL || '';
+
+if (MODE === 'remote' && EXTERNAL_URL) {
+  const PING_INTERVAL = 13 * 60 * 1000; // every 13 min (Render sleeps at 15)
   setInterval(() => {
-    const url = `http://localhost:${PORT}/api/health`;
-    http.get(url, (res) => {
+    const url = `${EXTERNAL_URL}/api/health`;
+    const lib = url.startsWith('https') ? https : http;
+    lib.get(url, (res) => {
       res.resume();
-      console.log(`  [keep-alive] pinged at ${new Date().toISOString()}`);
-    }).on('error', () => {});
+      console.log(`  [keep-alive] pinged ${url} at ${new Date().toISOString()}`);
+    }).on('error', (err) => {
+      console.warn(`  [keep-alive] ping failed: ${err.message}`);
+    });
   }, PING_INTERVAL);
-  console.log('  [keep-alive] self-ping every 14 min (Render anti-sleep)');
+  console.log(`  [keep-alive] will ping ${EXTERNAL_URL} every 13 min`);
+} else if (MODE === 'remote') {
+  console.log('  [keep-alive] ⚠  No RENDER_EXTERNAL_URL or APP_URL set — server may sleep after 15 min.');
 }
 
 // Serve static files from /public

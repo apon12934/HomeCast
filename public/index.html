@@ -134,7 +134,111 @@
       </button>
     </div>
 
-    <p class="text-zinc-700 text-[10px] mt-4 tracking-wide">v1.0 &middot; LAN only &middot; end-to-end encrypted</p>
+    <!-- How to Use button -->
+    <button id="btn-how-to-use"
+      class="mt-1 flex items-center gap-1.5 text-zinc-500 hover:text-accent text-xs transition-colors duration-200">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/>
+      </svg>
+      How to Use
+    </button>
+
+    <p class="text-zinc-700 text-[10px] mt-2 tracking-wide">v2.0 &middot; peer-to-peer &middot; end-to-end encrypted</p>
+  </div>
+
+  <!-- ======================== HOW TO USE MODAL ======================== -->
+  <div id="modal-how-to-use" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <!-- Backdrop -->
+    <div id="modal-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <!-- Modal content -->
+    <div class="relative w-full max-w-sm max-h-[85vh] bg-card border border-zinc-800/80 rounded-2xl overflow-hidden animate-fade-in">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-zinc-800/50">
+        <h2 class="text-base font-bold text-white">How to Use HomeCast</h2>
+        <button id="btn-close-modal" class="w-8 h-8 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 flex items-center justify-center transition-colors">
+          <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <!-- Body (scrollable) -->
+      <div class="px-5 py-4 overflow-y-auto max-h-[calc(85vh-4rem)] space-y-5 text-sm text-zinc-300">
+        <!-- What is it -->
+        <div>
+          <h3 class="text-accent font-semibold text-xs uppercase tracking-widest mb-2">What is HomeCast?</h3>
+          <p class="text-zinc-400 leading-relaxed">HomeCast turns any phone or laptop into a security camera. Another device on the <strong class="text-zinc-200">same Wi-Fi network</strong> can watch the live video feed in real time.</p>
+        </div>
+
+        <!-- Requirements -->
+        <div>
+          <h3 class="text-accent font-semibold text-xs uppercase tracking-widest mb-2">What You Need</h3>
+          <ul class="space-y-2">
+            <li class="flex items-start gap-2.5">
+              <span class="shrink-0 w-5 h-5 rounded-full bg-accent/15 text-accent text-[10px] font-bold flex items-center justify-center mt-0.5">1</span>
+              <span><strong class="text-zinc-200">Two devices</strong> — one acts as the camera, the other watches</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="shrink-0 w-5 h-5 rounded-full bg-accent/15 text-accent text-[10px] font-bold flex items-center justify-center mt-0.5">2</span>
+              <span><strong class="text-zinc-200">Same network</strong> — both must be on the same Wi-Fi or hotspot</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Steps -->
+        <div>
+          <h3 class="text-accent font-semibold text-xs uppercase tracking-widest mb-2">Step-by-Step</h3>
+          <div class="space-y-3">
+            <!-- Step 1 -->
+            <div class="flex items-start gap-3 bg-zinc-900/60 rounded-xl p-3 border border-zinc-800/40">
+              <div class="shrink-0 w-7 h-7 rounded-lg bg-accent/20 text-accent text-xs font-bold flex items-center justify-center">1</div>
+              <div>
+                <p class="font-semibold text-zinc-200">Set up the Camera</p>
+                <p class="text-zinc-500 text-xs mt-0.5">On your first device (e.g. an old phone), tap <strong class="text-accent">"Act as Camera"</strong> and allow camera access. A <strong class="text-zinc-200">4-digit PIN</strong> will appear.</p>
+              </div>
+            </div>
+            <!-- Step 2 -->
+            <div class="flex items-start gap-3 bg-zinc-900/60 rounded-xl p-3 border border-zinc-800/40">
+              <div class="shrink-0 w-7 h-7 rounded-lg bg-accent/20 text-accent text-xs font-bold flex items-center justify-center">2</div>
+              <div>
+                <p class="font-semibold text-zinc-200">Connect the Viewer</p>
+                <p class="text-zinc-500 text-xs mt-0.5">On your second device, tap <strong class="text-accent">"Viewer Dashboard"</strong>, enter the 4-digit PIN, and tap <strong class="text-accent">Connect</strong>.</p>
+              </div>
+            </div>
+            <!-- Step 3 -->
+            <div class="flex items-start gap-3 bg-zinc-900/60 rounded-xl p-3 border border-zinc-800/40">
+              <div class="shrink-0 w-7 h-7 rounded-lg bg-accent/20 text-accent text-xs font-bold flex items-center justify-center">3</div>
+              <div>
+                <p class="font-semibold text-zinc-200">Watch Live!</p>
+                <p class="text-zinc-500 text-xs mt-0.5">The live video will appear. Press <strong class="text-zinc-200">F</strong> for fullscreen. The stream is encrypted and goes directly between your devices.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tips -->
+        <div>
+          <h3 class="text-accent font-semibold text-xs uppercase tracking-widest mb-2">Tips</h3>
+          <ul class="space-y-1.5 text-zinc-400 text-xs">
+            <li class="flex items-start gap-2">• Place the camera device in a steady position, facing what you want to monitor</li>
+            <li class="flex items-start gap-2">• Keep the camera device plugged in — the screen stays on to prevent sleeping</li>
+            <li class="flex items-start gap-2">• The rear camera is used by default for better quality</li>
+            <li class="flex items-start gap-2">• Multiple viewers can connect using the same PIN</li>
+            <li class="flex items-start gap-2">• No data is stored or recorded — it's live streaming only</li>
+          </ul>
+        </div>
+
+        <!-- Important -->
+        <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+          <p class="text-amber-400 text-xs font-semibold flex items-center gap-1.5 mb-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+            </svg>
+            Important
+          </p>
+          <p class="text-amber-200/70 text-xs leading-relaxed">Both devices <strong>must be on the same Wi-Fi network</strong> (or connected to the same phone hotspot). The video won't work if one device is on Wi-Fi and the other is on mobile data.</p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ======================== CAMERA SCREEN ======================== -->
