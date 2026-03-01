@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: homecast
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MODE
+        value: remote
+      - key: NODE_VERSION
+        value: 18.20.4

@@ -14,21 +14,40 @@
   'use strict';
 
   /* ------------------------------------------------------------------ */
-  /*  PeerJS server config (local)                                       */
+  /*  PeerJS server config — loaded dynamically from /api/config         */
   /* ------------------------------------------------------------------ */
-  const PEER_SERVER = {
-    host: location.hostname,
-    port: Number(location.port) || 443,
-    path: '/peerjs',
-    secure: true,
-    debug: 1,
-    config: {
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-      ],
-    },
-  };
+  let PEER_SERVER = null;  // set after fetching config
+
+  async function loadConfig() {
+    try {
+      const res = await fetch('/api/config');
+      const cfg = await res.json();
+      PEER_SERVER = {
+        host: location.hostname,
+        port: Number(location.port) || (location.protocol === 'https:' ? 443 : 80),
+        path: '/peerjs',
+        secure: location.protocol === 'https:',
+        debug: 1,
+        config: { iceServers: cfg.iceServers },
+      };
+      console.log(`[HomeCast] Mode: ${cfg.mode}, ICE servers: ${cfg.iceServers.length}`);
+    } catch (err) {
+      console.error('[HomeCast] Failed to load config, using defaults:', err);
+      PEER_SERVER = {
+        host: location.hostname,
+        port: Number(location.port) || 443,
+        path: '/peerjs',
+        secure: location.protocol === 'https:',
+        debug: 1,
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+          ],
+        },
+      };
+    }
+  }
 
   /* ------------------------------------------------------------------ */
   /*  DOM References                                                     */
@@ -474,5 +493,8 @@
     }
   });
 
-  console.log('[HomeCast] App loaded ✓');
+  // Load config then enable UI
+  loadConfig().then(() => {
+    console.log('[HomeCast] App loaded ✓');
+  });
 })();
