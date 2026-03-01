@@ -40,6 +40,23 @@ app.get('/api/config', (_req, res) => {
   });
 });
 
+/* ------------------------------------------------------------------ */
+/*  Keep-alive (prevents Render free tier from sleeping)              */
+/* ------------------------------------------------------------------ */
+app.get('/api/health', (_req, res) => res.json({ status: 'ok', uptime: process.uptime() }));
+
+if (MODE === 'remote') {
+  const PING_INTERVAL = 14 * 60 * 1000; // 14 minutes
+  setInterval(() => {
+    const url = `http://localhost:${PORT}/api/health`;
+    http.get(url, (res) => {
+      res.resume();
+      console.log(`  [keep-alive] pinged at ${new Date().toISOString()}`);
+    }).on('error', () => {});
+  }, PING_INTERVAL);
+  console.log('  [keep-alive] self-ping every 14 min (Render anti-sleep)');
+}
+
 // Serve static files from /public
 app.use(express.static(path.join(__dirname, 'public')));
 

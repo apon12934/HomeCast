@@ -1,10 +1,35 @@
 # 🏠 HomeCast
 
-A **peer-to-peer CCTV** web app that turns any phone or laptop into a security camera. Watch the live feed from any other device — on your local network or over the internet.
+**Turn any phone into a security camera. Watch the live feed from any other device.**
 
-Built with **Node.js**, **Express**, **PeerJS (WebRTC)**, and **Tailwind CSS**.
+A peer-to-peer CCTV web app powered by WebRTC — encrypted, real-time, and free.
 
-![License](https://img.shields.io/badge/license-MIT-blue)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-homecast--apn.onrender.com-22d3ee?style=for-the-badge)](https://homecast-apn.onrender.com)
+![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+![Node](https://img.shields.io/badge/node-16%2B-success?style=flat-square)
+
+---
+
+## Try It Now (No Install Needed)
+
+HomeCast is hosted free at:
+
+### 👉 **https://homecast-apn.onrender.com**
+
+1. Open the link on **Device A** (phone) → tap **"Act as Camera"** → allow camera → note the **4-digit PIN**
+2. Open the same link on **Device B** (laptop/phone) → tap **"Viewer Dashboard"** → enter the PIN → tap **Connect**
+3. You're watching the live feed!
+
+> **⚠️ Important:** Both devices must be on the **same Wi-Fi / hotspot network**. The video stream goes directly between the two devices (peer-to-peer), which requires them to be able to reach each other on the same local network.
+
+> **💡 Tip:** If you're not on the same network, you can set up your own server — see [Self-Hosting](#self-hosting) below.
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `F` | Toggle fullscreen (camera or viewer screen) |
+| `Enter` | Submit PIN on the viewer screen |
 
 ---
 
@@ -12,27 +37,52 @@ Built with **Node.js**, **Express**, **PeerJS (WebRTC)**, and **Tailwind CSS**.
 
 - **Camera Mode** — Stream your device's camera (720p, rear-facing preferred)
 - **Viewer Mode** — Watch the live feed by entering a 4-digit PIN
-- **Peer-to-peer** — Video streams directly between devices via WebRTC (DTLS-SRTP encrypted)
-- **Self-hosted signaling** — No dependency on external PeerJS cloud servers
-- **Two deployment modes** — Local network (HTTPS + mkcert) or Internet (HTTP behind Caddy)
-- **TURN relay** — Optional coturn integration for cross-NAT internet connections
+- **Peer-to-peer** — Video goes directly between devices via WebRTC (DTLS-SRTP encrypted)
+- **Self-hosted signaling** — Own PeerJS server, no external dependencies
 - **Wake Lock** — Prevents the camera device from sleeping
-- **Fullscreen mode** — On both camera and viewer
-- **Mobile-optimized** — Dark UI, viewport-fitted, no scrolling
+- **Fullscreen mode** — On both camera and viewer (click button or press `F`)
+- **Mobile-first dark UI** — Tailwind CSS, viewport-fitted, no scrolling
 - **Stats overlay** — Resolution, FPS, elapsed time, viewer count
+- **Google Sans typography** — Clean, modern font throughout
 
 ---
 
-## Option A — Local Network (LAN only)
+## How It Works
 
-Use this when all devices are on the same Wi-Fi / LAN. Your PC runs the server.
+```
+┌──────────┐    signaling     ┌──────────┐    signaling     ┌──────────┐
+│  Camera  │ ──────────────►  │  Server  │  ◄────────────── │  Viewer  │
+│ (phone)  │                  │ (PeerJS) │                  │ (laptop) │
+└────┬─────┘                  └──────────┘                  └────┬─────┘
+     │                                                           │
+     │              direct peer-to-peer video stream             │
+     └───────────────────────────────────────────────────────────┘
+                         (WebRTC, encrypted)
+```
 
-### Prerequisites
+1. **Camera** registers on the PeerJS signaling server with a random 4-digit PIN
+2. **Viewer** connects to the camera's peer ID via a data channel
+3. **Camera** calls the viewer back with the real video stream
+4. Video flows **directly between devices** — the server never sees it
+
+The server only handles the initial handshake (signaling). All video is end-to-end encrypted.
+
+---
+
+## Self-Hosting
+
+Want to run your own HomeCast server? Two options:
+
+### Option A — Local Network (Your PC)
+
+Run it on your computer for devices on the same Wi-Fi.
+
+#### Prerequisites
 
 - **Node.js** v16+ (v18+ recommended)
-- **mkcert** — for generating locally-trusted SSL certificates
+- **mkcert** — for locally-trusted SSL certificates (browsers require HTTPS for camera access)
 
-### 1. Clone & install
+#### 1. Clone & install
 
 ```bash
 git clone https://github.com/apon12934/HomeCast.git
@@ -40,43 +90,31 @@ cd HomeCast
 npm install
 ```
 
-### 2. Install mkcert & generate certificates
+#### 2. Generate SSL certificates
 
-**Windows:**
-```bash
-winget install -e --id FiloSottile.mkcert
-```
+Install mkcert:
 
-**macOS:**
-```bash
-brew install mkcert
-```
+| OS | Command |
+|----|---------|
+| Windows | `winget install -e --id FiloSottile.mkcert` |
+| macOS | `brew install mkcert` |
+| Linux | `sudo apt install mkcert` |
 
-**Linux:**
-```bash
-sudo apt install mkcert   # or see https://github.com/FiloSottile/mkcert#installation
-```
-
-Set up the local CA (you may need to accept a system prompt):
+Then:
 ```bash
 mkcert -install
-```
-
-Generate certificates (replace `YOUR_LOCAL_IP` with your LAN IP, e.g. `192.168.1.100`):
-```bash
 mkdir certs
 mkcert -cert-file certs/cert.pem -key-file certs/key.pem localhost 127.0.0.1 YOUR_LOCAL_IP
 ```
 
-> **Tip:** Find your local IP with `ipconfig` (Windows) or `ifconfig` / `ip addr` (Mac/Linux).
+> Replace `YOUR_LOCAL_IP` with your LAN IP (find it with `ipconfig` on Windows or `ip addr` on Linux/Mac), e.g. `192.168.1.100`.
 
-### 3. Start the server
+#### 3. Start
 
 ```bash
 npm start
 ```
 
-Output:
 ```
 🏠 HomeCast server running in LOCAL mode
 
@@ -86,119 +124,47 @@ Output:
   PeerJS signaling: /peerjs
 ```
 
-### 4. Use it
+#### 4. Use it
 
-1. Open the **Network URL** on **Device A** (phone) → **"Act as Camera"** → grant camera → note the 4-digit PIN
-2. Open the same URL on **Device B** → **"Viewer Dashboard"** → enter PIN → **Connect**
+Open the **Network URL** (e.g. `https://192.168.1.100:3000`) on both devices.
 
-Both devices must be on the **same network**.
+> **⚠️ Both devices must be on the same Wi-Fi / LAN network.** The video stream is peer-to-peer and requires local network connectivity.
 
 ---
 
-## Option B — Internet Access (Free, Zero Budget)
+### Option B — Render.com (Free Internet Hosting)
 
-Access HomeCast from **anywhere in the world** using a free Oracle Cloud VM. No PC needs to stay on.
+Deploy to the cloud so anyone can access it. No credit card needed.
 
-| Component | Cost | Purpose |
-|-----------|------|---------|
-| [Oracle Cloud Free Tier](https://www.oracle.com/cloud/free/) | $0 forever | 2 AMD VMs (1 GB RAM each) |
-| [DuckDNS](https://www.duckdns.org/) | $0 | Free subdomain → VM public IP |
-| [Caddy](https://caddyserver.com/) | $0 (open source) | Reverse proxy + auto HTTPS (Let's Encrypt) |
-| [coturn](https://github.com/coturn/coturn) | $0 (open source) | TURN relay for NAT traversal |
+1. Push this repo to your GitHub
+2. Go to [render.com](https://render.com) → sign up with GitHub
+3. Click **"New +" → "Web Service"** → connect your HomeCast repo
+4. Settings:
+   - **Build Command:** `npm install`
+   - **Start Command:** `node server.js`
+   - **Instance Type:** Free
+5. Add environment variable: `MODE` = `remote`
+6. Click **"Create Web Service"** — deployed in ~2 min
 
-### Step 1 — Create Oracle Cloud account
+Your URL will be `https://your-app.onrender.com`. The server includes a self-ping keep-alive to prevent Render's free tier from sleeping.
 
-1. Go to <https://www.oracle.com/cloud/free/> and sign up (credit card required for verification — **you will never be charged** on the Always Free tier).
-2. Choose a **Home Region** close to you (e.g. `US East (Ashburn)`, `UK South (London)`, `AP Mumbai`).
-3. Wait for account activation (~2 min).
+> **Note:** Render doesn't support TURN servers, so both devices need to be on the same network for the peer-to-peer video stream. For most home/mobile use, this works perfectly.
 
-### Step 2 — Create a free VM
+---
 
-1. In the Oracle Cloud Console → **Compute → Instances → Create Instance**
-2. Set the shape to **VM.Standard.E2.1.Micro** (Always Free eligible)
-3. Image: **Ubuntu 22.04** (Canonical)
-4. Under **Add SSH keys**, either generate a key pair (download the private key!) or paste your existing public key
-5. Click **Create** — wait for status to turn **RUNNING**
-6. Note the **Public IP** address
+### Option C — VPS with TURN Server (Advanced)
 
-### Step 3 — Register a free domain
+For full cross-network support (viewer and camera on different networks), deploy on a VPS with a TURN relay server.
 
-1. Go to <https://www.duckdns.org/> and sign in (Google/GitHub)
-2. Create a subdomain (e.g. `homecast-yours`) — this gives you `homecast-yours.duckdns.org`
-3. Set the IP to your **VM's Public IP** from Step 2
-4. Click **Update**
-
-### Step 4 — Open firewall ports in Oracle Console
-
-In the Oracle Cloud Console:
-
-1. Go to **Networking → Virtual Cloud Networks** → click your VCN → **Security Lists** → **Default Security List**
-2. Add these **Ingress Rules**:
-
-| Source CIDR | Protocol | Dest Port | Description |
-|-------------|----------|-----------|-------------|
-| `0.0.0.0/0` | TCP | 80 | HTTP (Caddy redirect) |
-| `0.0.0.0/0` | TCP | 443 | HTTPS (Caddy) |
-| `0.0.0.0/0` | TCP | 3478 | TURN (coturn TCP) |
-| `0.0.0.0/0` | UDP | 3478 | TURN (coturn UDP) |
-| `0.0.0.0/0` | TCP | 5349 | TURN TLS |
-| `0.0.0.0/0` | UDP | 49152-65535 | TURN relay range |
-
-### Step 5 — Deploy HomeCast on the VM
-
-SSH into your VM:
-```bash
-ssh -i /path/to/your-key ubuntu@YOUR_VM_PUBLIC_IP
-```
-
-Download and run the setup script:
-```bash
-git clone https://github.com/apon12934/HomeCast.git
-cd HomeCast
-chmod +x setup-cloud.sh
-sudo ./setup-cloud.sh homecast-yours.duckdns.org
-```
-
-Replace `homecast-yours.duckdns.org` with your actual DuckDNS domain.
-
-The script will:
-- Install Node.js 18, Caddy, and coturn
-- Clone/update the HomeCast repo to `/opt/homecast`
-- Configure coturn with auto-generated TURN credentials
-- Set up Caddy as a reverse proxy with automatic HTTPS
-- Create a `homecast` systemd service that starts on boot
-- Open OS-level firewall ports (iptables)
-
-When done, you'll see:
-```
-  ✅ HomeCast is deployed!
-
-  🌐 URL:  https://homecast-yours.duckdns.org
-```
-
-### Step 6 — Use it from anywhere
-
-1. Open `https://homecast-yours.duckdns.org` on any phone → **Act as Camera**
-2. Open the same URL on any other device, anywhere in the world → **Viewer Dashboard** → enter PIN
-
-Done! The VM runs 24/7 for free and auto-restarts on reboot.
-
-### Managing the server
+A `setup-cloud.sh` script is included for automated deployment on Ubuntu VMs (Oracle Cloud, Azure, AWS, etc.):
 
 ```bash
-# Check status
-sudo systemctl status homecast
-
-# View logs
-sudo journalctl -u homecast -f
-
-# Restart
-sudo systemctl restart homecast
-
-# Update to latest code
-cd /opt/homecast && sudo git pull && sudo npm install --production
-sudo systemctl restart homecast
+sudo ./setup-cloud.sh your-domain.duckdns.org
 ```
+
+This installs Node.js, Caddy (auto HTTPS), and coturn (TURN relay), and sets up everything as systemd services.
+
+See the script source for details.
 
 ---
 
@@ -206,42 +172,47 @@ sudo systemctl restart homecast
 
 ```
 HomeCast/
-├── certs/              # Local SSL certs (git-ignored)
-│   ├── cert.pem
-│   └── key.pem
-├── public/             # Static frontend
-│   ├── index.html      # UI (Tailwind CSS)
-│   └── app.js          # Client logic (PeerJS / WebRTC)
-├── server.js           # Express + PeerJS signaling (local or remote mode)
-├── setup-cloud.sh      # One-command Oracle Cloud VM deployment
+├── public/
+│   ├── index.html        # UI — Tailwind CSS dark theme
+│   └── app.js            # Client logic — PeerJS / WebRTC
+├── server.js             # Express + PeerJS signaling + keep-alive
+├── render.yaml           # Render.com blueprint (one-click deploy)
+├── setup-cloud.sh        # VPS deployment automation
 ├── package.json
 ├── .gitignore
 └── README.md
 ```
 
----
-
 ## Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `MODE` | `local` | `local` = HTTPS with mkcert certs, `remote` = HTTP behind Caddy |
-| `PORT` | `3000` | Server port |
-| `TURN_URL` | *(empty)* | TURN server URL, e.g. `turn:1.2.3.4:3478` |
-| `TURN_USER` | *(empty)* | TURN username |
-| `TURN_PASS` | *(empty)* | TURN password/credential |
+| `MODE` | `local` | `local` = HTTPS with mkcert · `remote` = HTTP (behind reverse proxy) |
+| `PORT` | `3000` | Server port (Render sets this automatically) |
+| `TURN_URL` | — | TURN server URL, e.g. `turn:1.2.3.4:3478` |
+| `TURN_USER` | — | TURN username |
+| `TURN_PASS` | — | TURN credential |
 
----
+## Security
 
-## Security Notes
+- **End-to-end encrypted** — WebRTC uses DTLS-SRTP. The server never touches your video.
+- **Signaling only** — The server is a matchmaker. Video flows directly between peers.
+- **No accounts, no tracking** — No login, no cookies, no analytics.
+- **Open source** — Read every line of code yourself.
 
-- **End-to-end encrypted** — WebRTC streams use DTLS-SRTP encryption. The server only handles signaling, never the video.
-- **Signaling server only** — No video data passes through the server. Peers connect directly (or via TURN relay when needed).
-- **mkcert certs are local** — They are signed by a CA only your machine trusts. Each user generates their own.
-- **TURN credentials** — The setup script generates random credentials. They are stored in the systemd service file on the VM.
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Tailwind CSS · Google Sans · PeerJS client |
+| Backend | Node.js · Express · PeerJS server |
+| Streaming | WebRTC (peer-to-peer) |
+| Hosting | Render.com (free tier) |
 
 ---
 
 ## License
 
 MIT — free to use, modify, and distribute.
+
+Built by [@apon12934](https://github.com/apon12934)

@@ -486,6 +486,22 @@
   btnCamFullscreen.addEventListener('click', () => toggleFullscreen(camPreviewWrap));
   btnViewerFullscreen.addEventListener('click', () => toggleFullscreen(viewerVideoFrame));
 
+  // Keyboard shortcut: F key for fullscreen
+  document.addEventListener('keydown', (e) => {
+    // Ignore if typing in an input field
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'f' || e.key === 'F') {
+      // Camera screen visible
+      if (!screens.camera.classList.contains('hidden') && !camPreviewWrap.classList.contains('hidden')) {
+        toggleFullscreen(camPreviewWrap);
+      }
+      // Viewer screen visible with active feed
+      else if (!screens.viewer.classList.contains('hidden') && !viewerFeedPanel.classList.contains('hidden')) {
+        toggleFullscreen(viewerVideoFrame);
+      }
+    }
+  });
+
   // Re-acquire wake lock if page regains visibility (camera mode)
   document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState === 'visible' && localStream && !wakeLock) {
